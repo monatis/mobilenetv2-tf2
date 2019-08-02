@@ -30,6 +30,10 @@ run `python train.py --help` to see all the options.
 - [x] Implement command line arguments to configure data augmentation.
 - [ ] Share an inference script.
 - [ ] Implement mean and STD normalization.
-- Implement confusion matrix.
+- [ ] Implement confusion matrix.
 - [ ] Implement export to TFLite for model inference.
 - [ ] Share an example Android app using the exported TFLite model.
+
+## License
+
+MIT
