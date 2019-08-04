@@ -6,6 +6,10 @@ A TensorFlow 2.0 implementation of [Inverted Residuals and Linear Bottlenecks Mo
 
 MobileNetV2  is still one of the most efficient architectures for image classification. Considering that TensorFlow 2.0 has already hit version beta1, I think that a flexible and reusable implementation of MobileNetV2 in TF 2.0 might be useful for practitioners.
 
+## Implementation
+
+I  implemented a running mean and standard deviation calculation with [Welford algorithm](https://www.johndcook.com/blog/standard_deviation/), which eliminates the problem of loading the whole dataset into the memory. `Normalizer` class, calculating the mean and standard deviation, is also used as a `preprocessing_function` argument to `tf.keras.preprocessing.image.ImageDataGenerator`.
+
 ## Install
 
 1. `conda create -n mobilenetv2 python=3.6.8`
@@ -29,7 +33,7 @@ run `python train.py --help` to see all the options.
 - [x] Implement export to saved model.
 - [x] Implement command line arguments to configure data augmentation.
 - [ ] Share an inference script.
-- [ ] Implement mean and STD normalization.
+- [x] Implement mean and STD normalization.
 - [ ] Implement confusion matrix.
 - [ ] Implement export to TFLite for model inference.
 - [ ] Share an example Android app using the exported TFLite model.

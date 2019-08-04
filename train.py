@@ -5,6 +5,7 @@ import os
 import argparse
 import pandas as pd
 import csv
+from normalizer import Normalizer
 
 from mobilenet_v2 import MobileNetv2
 
@@ -26,17 +27,21 @@ def generate(args):
 
     #  Using the data Augmentation in traning data
 
+    normalizer = Normalizer()
+
     train_aug = tf.keras.preprocessing.image.ImageDataGenerator(
-        rescale=1. / 255.,
+        #rescale=1. / 255.,
         shear_range=args.shear_range,
         zoom_range=args.zoom_range,
         rotation_range=args.rotation_range,
         width_shift_range=args.width_shift_range,
         height_shift_range=args.height_shift_range,
         horizontal_flip=args.horizontal_flip,
-        vertical_flip=args.vertical_flip)
+        vertical_flip=args.vertical_flip,
+        preprocessing_function=normalizer)
 
-    validation_aug = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
+
+    validation_aug = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=normalizer)
 
     train_generator = train_aug.flow_from_directory(
         args.train_dir,
@@ -44,6 +49,13 @@ def generate(args):
         batch_size=args.batch_size,
         class_mode='categorical',
         shuffle=True)
+
+    mean, std = normalizer.get_stats(args.train_dir, train_generator.filenames, (args.input_size, args.input_size))
+    if not os.path.exists('model'):
+        os.makedirs('model')
+    with open('model/stats.txt', 'w') as stats:
+        stats.write("Dataset mean [r, g, b] = {}\n".format(mean))
+
 
     label_map = (train_generator.class_indices)
     label_map = dict((v,k) for k,v in label_map.items())
