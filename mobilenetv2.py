@@ -96,7 +96,7 @@ def _inverted_residual_block(inputs, filters, kernel, t, strides, n):
     return x
 
 
-def MobileNetv2(input_shape, k, plot_model=False):
+def MobileNetV2(input_shape, k, plot_model=False):
     """MobileNetv2
     This function defines a MobileNetv2 architecture.
 

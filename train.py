@@ -1,5 +1,5 @@
 ﻿"""
-Train the MobileNet V2 model
+Train the EffNet model
 """
 import os
 import argparse
@@ -7,7 +7,7 @@ import pandas as pd
 import csv
 from normalizer import Normalizer
 
-from mobilenet_v2 import MobileNetv2
+from mobilenetv2 import MobileNetV2
 
 import tensorflow as tf
 
@@ -50,7 +50,14 @@ def generate(args):
         class_mode='categorical',
         shuffle=True)
 
-    mean, std = normalizer.get_stats(args.train_dir, train_generator.filenames, (args.input_size, args.input_size))
+    mean, std = [], []
+    if args.mean is None or args.std is None:
+        mean, std = normalizer.get_stats(args.train_dir, train_generator.filenames, (args.input_size, args.input_size))
+    else:
+        mean = [float(m.strip()) for m in args.mean.split(',')]
+        std = [float(s.strip()) for s in args.std.split(',')]
+        normalizer.set_stats(mean, std)
+
     if not os.path.exists('model'):
         os.makedirs('model')
     with open('model/stats.txt', 'w') as stats:
@@ -84,7 +91,7 @@ def train(args):
     train_generator, validation_generator, num_training, num_validation, num_classes = generate(args)
     print("{} classes found".format(num_classes))
 
-    model = MobileNetv2((args.input_size, args.input_size, 3), num_classes, args.plot_model)
+    model = MobileNetV2((args.input_size, args.input_size, 3), num_classes, args.plot_model)
 
     opt = tf.keras.optimizers.Adam()
     earlystop = tf.keras.callbacks.EarlyStopping(monitor='val_acc', patience=30, verbose=1, mode='auto')
@@ -180,6 +187,14 @@ if __name__ == '__main__':
         type=bool,
         default=False,
         help="Whether or not to flip vertically for data augmentation.")
+    parser.add_argument(
+            "--mean",
+            default=None,
+            help="Dataset mean values for r, g, b values separates by commas")
+    parser.add_argument(
+            "--std",
+            default=None,
+            help="Dataset std values for r, g, b values separates by commas")
         
     args = parser.parse_args()
     train(args)

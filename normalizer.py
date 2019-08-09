@@ -9,6 +9,9 @@ def get_mean_std(base_dir, filenames, target_size):
 
     
     for z, filename in enumerate(filenames):
+        if z % 1000 == 0:
+            print("Processing image {}/{}".format(z+1, len(filenames)))
+
         x = tf.keras.preprocessing.image.img_to_array(tf.keras.preprocessing.image.load_img(os.path.join(base_dir, filename), target_size=target_size))
         r = x[:, :, 0].flatten().tolist()
         g = x[:, :, 1].flatten().tolist()
@@ -16,8 +19,6 @@ def get_mean_std(base_dir, filenames, target_size):
 
         for (xr, xg, xb) in zip(r, g, b):
             n = n + 1
-            if n % 1000 == 0:
-                print("{}/{} images processed".format(n, len(filenames)))
 
             r_delta = xr - r_mean
             g_delta = xg - g_mean
@@ -59,6 +60,11 @@ class Normalizer():
 
     def scale(self, img):
         return img / self.std
+
+    def set_stats(self, mean, std):
+        self.mean = np.array(mean).reshape(1, 1, 3)
+        self.std = np.array(std).reshape(1, 1, 3)
+        
 
     def get_stats(self, base_dir, filenames, target_size, calc_mean=True, calc_std=True):
         print("Calculating mean and standard deviation with shape: ", target_size)
